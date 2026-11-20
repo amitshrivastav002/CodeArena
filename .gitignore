@@ -5,3 +5,10 @@ dist
 *.log
 .vscode/*
 !.vscode/extensions.json
+
+*.apk
+codearena/android/local.properties
+codearena/android/build/
+codearena/android/app/build/
+codearena/android/.gradle/
+codearena/android/app/src/main/assets/public/

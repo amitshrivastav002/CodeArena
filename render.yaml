@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: codearena-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/problems
+    # SQLite needs a persistent disk (paid plan); on free tier data resets on every deploy/restart.
+    plan: starter
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION # node:sqlite needs >= 22.5
+        value: 22
+      - key: DB_FILE
+        value: /var/data/codearena.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false # your static site URL, e.g. https://codearena.onrender.com
+      - key: JUDGE0_URL
+        sync: false
+      - key: JUDGE0_KEY
+        sync: false
+      - key: SMTP_URL
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+
+  - type: web
+    name: codearena
+    runtime: static
+    rootDir: codearena
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite # frontend calls relative /api, so proxy it to the API service
+        source: /api/*
+        destination: https://codearena-api.onrender.com/api/*
+      - type: rewrite # SPA fallback
+        source: /*
+        destination: /index.html

@@ -1,3 +1,5 @@
+import { localApi } from './local/localApi'
+
 const TOKEN_KEY = 'codearena.token'
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
@@ -6,6 +8,7 @@ export const setToken = (t: string | null) =>
 
 export async function api<T>(path: string, body?: unknown, method?: 'PUT'): Promise<T> {
   const token = getToken()
+  if (import.meta.env.VITE_LOCAL) return localApi<T>(path, body, method ?? (body ? 'POST' : 'GET'), token)
   const res = await fetch(`/api${path}`, {
     method: method ?? (body ? 'POST' : 'GET'),
     headers: { 'Content-Type': 'application/json', ...(token && { Authorization: `Bearer ${token}` }) },
